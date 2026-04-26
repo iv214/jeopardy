@@ -5,7 +5,7 @@ class GameManager {
     }
     createGame(organizer, options) {
         const game = {
-            id: this.games.length(),
+            id: this.games.size,
             organizer: organizer,
             players: [],
             scores: new Map(),
@@ -15,7 +15,7 @@ class GameManager {
             }
         }
         
-        this.games.push(game)
+        this.games.set(game.id, game)
         return game;
     }
     joinGame(gameid, player) {

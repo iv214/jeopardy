@@ -50,8 +50,8 @@ io.on("connection", (socket) => {
         }
         if (io.sockets.adapter.rooms.has(params.room))
         {
-            socket.join(room);
-            socket.to(room).emit("join-room-server", socket.id)
+            socket.join(params.room);
+            socket.to(params.room).emit("join-room-server", socket.id)
         }
         const date = new Date(Date.now())
         socket.emit("press-server", date.toString());
