@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import './App.css'
-import { useSocketContext } from './socket';
+import { useSocketContext } from './socket.jsx';
 import { Link } from 'react-router-dom';
 
 export function Game() {
