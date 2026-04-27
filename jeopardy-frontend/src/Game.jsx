@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import './App.css'
+import './Game.css'
 import { useSocketContext } from './socket.jsx';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -98,10 +99,23 @@ export function Game() {
         socket.emit(type, params);
     }
 
+    // Chat
+    const Chat = () =>
+    {
+        return (
+            <div className="chat-view">
+
+            </div>
+        )
+    }
+
+
+
+
     return (
         <>
-        <h3>Jeopardy</h3>
-        <div className="card"> {/* overall view */}
+        {/*<h3>Jeopardy</h3>*/}
+        <div className="game-view"> {/* overall view */}
             <div className="main-panel">
                 <div className="main-view">
                     <h2>main view</h2>
@@ -114,15 +128,28 @@ export function Game() {
                         onClick={() => send("press-client", {uuid: uuid, room: room})} >
                             Press to answer
                         </button>
+                        <p>{response}</p>
                     </div>
                 )}
-                {}
+            </div>
+            <div className="secondary-panel">
+                <div className="room-panel">
+                    <div className="room-code">
+                        <p>Room code:<br/>{room}</p>
+                    </div>
+                    <button className="room-leave" onClick={() => send("leave-room-client", {uuid: uuid, room: room})}>
+                        Leave game
+                    </button>
+                </div>
+                
+
+                <Chat/>
+                <div>
+                    <p>test panel</p>
+                </div>
             </div>
             
-            <button onClick={() => send("leave-room-client", {uuid: uuid, room: room})}>
-            Leave game
-            </button>
-            <p>{response}</p>
+            
         </div>
         </>
     )
