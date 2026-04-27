@@ -41,9 +41,18 @@ io.on("connection", (socket) => {
     socket.on("press-client", (params, callback) => {
         console.log("received a press")
         const date = new Date(Date.now())
+        if (typeof params.uuid !== "string") return;
         if (typeof params.room !== "string") return;
-        if (socket.rooms.has(params.room)) {
-            io.to(params.room).emit("press-server", date.toString());
+        const uuid = params.uuid;
+        const room = params.room;
+        if (socket.rooms.has(room)) {
+            const playerData = gameManager.getPlayerData(room, uuid);
+            if (playerData) {
+                io.to(params.room).emit("press-server", {name: playerData.name, date: date.toString()});
+            }
+            else {
+                socket.emit("error", {message: ""})
+            }
         }
         else {
             socket.emit("error", {message: "Not in the room"})
@@ -58,6 +67,24 @@ io.on("connection", (socket) => {
         io.emit("message-server", {source: socket.id, message: params.message});
     })
     // Room management
+    socket.on("leave-room-client", (params, callback) => {
+        if (typeof params.room !== "string") return;
+        const room = params.room;
+        const uuid = params.uuid;
+        if (socket.rooms.has(room)) socket.leave(room);
+        const playerData = gameManager.getPlayerData(room, uuid)
+        if (playerData) {
+            gameManager.removePlayer(room, uuid);
+        }
+        socket.emit("leave-room-success", {message: "Left the room"})
+        if (io.sockets.adapter.rooms.has(room))
+        {
+            if (playerData) {
+                socket.to(room).emit("room-action-broadcast", {name: playerData.name, id: socket.id, action: "left"});
+            }
+        }
+    })
+
     socket.on("join-room-client", (params, callback) => {
         if (typeof params.room !== 'string' || params.room.length > 20)
         {
@@ -83,8 +110,8 @@ io.on("connection", (socket) => {
                 return;
             }
             socket.join(room);
-            socket.emit("join-success", {uuid: uuid, room: room});
-            socket.to(room).emit("join-broadcast", {name: name, id: socket.id})
+            socket.emit("join-room-success", {uuid: uuid, room: room});
+            socket.to(room).emit("room-action-broadcast", {name: name, id: socket.id, action: "joined"})
         }
         else {
             socket.emit("error", {message: "Room not found"});
@@ -114,7 +141,7 @@ io.on("connection", (socket) => {
                 return;
             }
             socket.join(room);
-            socket.emit("create-success", {uuid: uuid, room: room});
+            socket.emit("create-room-success", {uuid: uuid, room: room});
         }
         else {
             socket.emit("error", {message: "Exceeded max room id generation attempts"});
@@ -128,8 +155,10 @@ io.on("connection", (socket) => {
         if (socket.rooms.has(room)) return; // No need to rejoin
         if (io.sockets.adapter.rooms.has(room)) {
             if (gameManager.checkPlayer(room, uuid)) {
+                const name = gameManager.getPlayerData(room, uuid).name;
                 socket.join(room);
                 socket.emit("success", {message: "Reconnected to the room"})
+                socket.to(room).emit("room-action-broadcast", {name: name, id: socket.id, action: "rejoined"})
             }
             else {
                 socket.emit("kick", {message: "Player is not in the room"});

@@ -33,6 +33,12 @@ export function Game() {
             }
             navigate("/");
         }
+        const leave_listener = (params) => {
+            if (typeof params.message === "string") {
+                toast.success(params.message, {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
+            }
+            navigate("/");
+        }
         const success_listener = (params) => {
             if (typeof params.message === "string") {
                 toast.success(params.message, {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
@@ -43,19 +49,29 @@ export function Game() {
                 toast.error(params.message, {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
             }
         };
-        const join_broadcast_listener = (params) => {
-            if (typeof params.name === "string" && typeof params.id === "string") {
-                toast.info(`${params.name} [${params.id}] joined the room`)
+        const room_action_broadcast_listener = (params) => {
+            if (typeof params.name === "string" && typeof params.id === "string" && typeof params.action === "string") {
+                toast.info(`${params.name} [${params.id}] ${params.action} the room`)
+            }
+            else {
+                toast.info("something happend idk")
             }
         }
-        const listener = (message) => {
+
+        const press_listener = (params) => {
             console.log("received")
-            setResponse(message);
+            if (typeof params.name === "string" && typeof params.date === "string") {
+                setResponse(`${params.name} was the one to press the button`);
+                toast.info(`${params.name} pressed the button`)
+            }
+            
         };
-        socket.on("press-server", listener)
-        socket.on("join-broadcast", join_broadcast_listener)
+        socket.off()
+        socket.on("press-server", press_listener)
+        socket.on("room-action-broadcast", room_action_broadcast_listener)
         socket.on("error", error_listener)
         socket.on("kick", kick_listener)
+        socket.on("leave-room-success", leave_listener)
         socket.on("success", success_listener)
 
         if (room == null) {
@@ -69,9 +85,7 @@ export function Game() {
         }
 
         return () => {
-            socket.off("press-server", listener)
-            socket.off("join_broadcast", join_broadcast_listener)
-            socket.off("error", error_listener)
+            socket.off()
         }
     });
 
@@ -84,12 +98,12 @@ export function Game() {
         <>
         <h3>Jeopardy</h3>
         <div className="card">
-            <button onClick={() => send("press-client", {room: room})} >
+            <button onClick={() => send("press-client", {uuid: uuid, room: room})} >
             Press
             </button>
-            <Link to="/">
-                <button type="button">Back to menu</button>
-            </Link>
+            <button onClick={() => send("leave-room-client", {uuid: uuid, room: room})}>
+            Leave game
+            </button>
             <p>{response}</p>
         </div>
         </>

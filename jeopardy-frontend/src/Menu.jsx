@@ -24,14 +24,12 @@ export function Menu() {
                 navigate("/game", { state: {uuid: params.uuid, room: params.room} });
             }
         };
-
-        socket.on("join-success", join_success_listener)
-        socket.on("create-success", create_success_listener)
+        socket.off()
+        socket.on("join-room-success", join_success_listener)
+        socket.on("create-room-success", create_success_listener)
         socket.on("error", error_listener);
         return () => {
-            socket.off("join-success", join_success_listener);
-            socket.off("create-success", create_success_listener)
-            socket.off("error", error_listener);
+            socket.off();
         }
     });
     function send(type, params={}) {
@@ -54,7 +52,7 @@ export function Menu() {
                     name: document.getElementById("username-input")["value"], 
                     room: document.getElementById("code-input")["value"],
                 }
-            )}>Start game</button>
+            )}>Join game</button>
             <br/>
             <button type="button" onClick={() => send("create-room-client",
                 {name: document.getElementById("username-input")["value"],}

@@ -31,12 +31,31 @@ class GameManager {
         return false;
     }
 
+    
+
     checkPlayer(room, uuid) {
         if (typeof room !== "string") return false;
         if (typeof uuid !== "string") return false;
         const game = this.games.get(room)
         if (game) {
             return game.players.has(uuid);
+        }
+    }
+    removePlayer(room, uuid) {
+        if (typeof room !== "string") return false;
+        if (typeof uuid !== "string") return false;
+        const game = this.games.get(room)
+        if (game) {
+            return game.players.delete(uuid);
+        }
+    }
+
+    getPlayerData(room, uuid) {
+        if (typeof room !== "string") return null;
+        if (typeof uuid !== "string") return null;
+        const game = this.games.get(room)
+        if (game) {
+            return game.players.get(uuid)
         }
     }
 
