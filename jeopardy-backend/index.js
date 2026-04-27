@@ -33,7 +33,7 @@ io.use((socket, next) => {
 });
 
 io.of("/").adapter.on("delete-room", (room) => {
-    gameManager.deleteGame(room);
+    if (gameManager.deleteGame(room)) console.log(`deleted empty game ${room}`);
 });
 
 io.on("connection", (socket) => {
@@ -169,7 +169,14 @@ io.on("connection", (socket) => {
             socket.emit("kick", {message: "Room doesn't exist"});
         }
     })
+
+    // Game state update
+    socket.on("fetch-gamestate", (params, callback) => {
+        
+        socket.emit("update-gamestate", {stats: {}, gamestate: {}})
+    })
     // Game commands
+
 
 
 

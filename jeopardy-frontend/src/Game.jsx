@@ -9,11 +9,18 @@ export function Game() {
     const location = useLocation();
     const navigate = useNavigate();
     const [response, setResponse] = useState("")
-    const [stage, setStage] = useState("");
-    
+    const [stage, setStage] = useState("q-waiting");
+    const [isOrganizer, setIsOrganizer] = useState(false);
+    const card_view_stages = ["q-preview", "q-waiting", "q-answer", "q-judgement", "q-reveal", "q-appeal"];
+    const button_available_stages = ["q-waiting"]
+
+    const [question, setQuestion] = useState("");
+    const [answer, setAnswer] = useState("");
+    const [answerAccepted, setAnswerAccepted] = useState("")
+    // note: the game logic itself is handled server-side
+
     let uuid = null;
     let room = null;
-    let isOrganizer = false;
     if (location.state !== null && typeof location.state.uuid === "string") {
         uuid = location.state.uuid;
         sessionStorage.setItem("uuid", uuid)
@@ -24,7 +31,7 @@ export function Game() {
         sessionStorage.setItem("room", room)
     }
     else room = sessionStorage.getItem("room");
-    if (location.state !== null && typeof location.state.isOrganizer === "boolean") isOrganizer = location.state.isOrganizer;
+    if (location.state !== null && typeof location.state.isOrganizer === "boolean") setIsOrganizer(location.state.isOrganizer === true);
 
     useEffect(() => {
         const kick_listener = (params) => {
@@ -52,9 +59,6 @@ export function Game() {
         const room_action_broadcast_listener = (params) => {
             if (typeof params.name === "string" && typeof params.id === "string" && typeof params.action === "string") {
                 toast.info(`${params.name} [${params.id}] ${params.action} the room`)
-            }
-            else {
-                toast.info("something happend idk")
             }
         }
 
@@ -97,10 +101,24 @@ export function Game() {
     return (
         <>
         <h3>Jeopardy</h3>
-        <div className="card">
-            <button onClick={() => send("press-client", {uuid: uuid, room: room})} >
-            Press
-            </button>
+        <div className="card"> {/* overall view */}
+            <div className="main-panel">
+                <div className="main-view">
+                    <h2>main view</h2>
+                </div>
+                
+                {card_view_stages.includes(stage) && (
+                    <div className="card-view">
+                        <h3>{question.toString()}</h3>
+                        <button disabled={!button_available_stages.includes(stage)}
+                        onClick={() => send("press-client", {uuid: uuid, room: room})} >
+                            Press to answer
+                        </button>
+                    </div>
+                )}
+                {}
+            </div>
+            
             <button onClick={() => send("leave-room-client", {uuid: uuid, room: room})}>
             Leave game
             </button>
