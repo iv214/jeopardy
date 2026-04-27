@@ -3,29 +3,38 @@ class GameManager {
         this.games = new Map()
         this.io = io
     }
-    createGame(organizer, options) {
+    createGame(room, creator, options={}) {
         const game = {
-            id: this.games.size,
-            organizer: organizer,
+            creator: creator,
             players: [],
             scores: new Map(),
             options: options,
             gamestate: {
-                
+                started: false,
             }
         }
-        
-        this.games.set(game.id, game)
+        this.games.set(room, game)
         return game;
     }
-    joinGame(gameid, player) {
+    joinGame(room, player) {
 
     }
 
-    closeGame(gameid)
+    broadcastGame(room) {
+        if (typeof room !== "string") return;
+
+    }
+
+    closeGame(room)
     {
-        this.io.socketsLeave("gameid")
-        
+        if (typeof room !== "string") return;
+        this.io.socketsLeave(room);
+    }
+    deleteGame(room) {
+        if (typeof room !== "string") return;
+        if (this.games.delete(room)) {
+            console.log(`deleted empty game ${room}`);
+        }
     }
 }
 module.exports = GameManager

@@ -1,19 +1,38 @@
 import { useContext, useEffect, useState } from 'react'
 import './App.css'
-import { useSocketContext } from './socket';
+import { useSocketContext } from './socket.jsx';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export function Menu() {
     const navigate = useNavigate();
     const socket = useSocketContext();
     const [response, setResponse] = useState("")
     useEffect(() => {
-        const listener = (message) => {
-            console.log("received answer, navigating");
-            navigate("/game");
+        const join_success_listener = (params) => {
+            toast.success("Joining the lobby", {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
+            navigate("/game", { state: {room: params.room} });
         };
-        socket.on("press-server", listener)
-        return () => socket.off("press-server", listener)
+        const error_listener = (params) => {
+            if (typeof params.message === "string") {
+                toast.error(params.message, {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
+            }
+        };
+        const create_success_listener = (params) => {
+            if (typeof params.room === "string") {
+                toast.success(`Created the lobby, room id: ${params.room}`, {autoClose: 5000, hideProgressBar: false, pauseOnHover: true});
+                navigate("/game", { state: {room: params.room} });
+            }
+        };
+
+        socket.on("join-success", join_success_listener)
+        socket.on("create-success", create_success_listener)
+        socket.on("error", error_listener);
+        return () => {
+            socket.off("join-success", join_success_listener);
+            socket.off("create-success", create_success_listener)
+            socket.off("error", error_listener);
+        }
     });
     function send(type, params={}) {
         console.log("sent")
@@ -30,11 +49,14 @@ export function Menu() {
             <label htmlFor="code-input">Enter game code:</label>
             <input id="code-input" type="text"></input>
             <br/>
-            <button type="button" onClick={() => send("press-client")}>Start game</button>
+            <button type="button" onClick={() => send("join-room-client",
+                {
+                    name: document.getElementById("username-input")["value"], 
+                    room: document.getElementById("code-input")["value"],
+                }
+            )}>Start game</button>
             <br/>
-            <Link to="/create">
-                <button type="button" onClick={() => send("create-game-client")}>Create game</button>
-            </Link>
+            <button type="button" onClick={() => send("create-room-client")}>Create game</button>
             <p>{response}</p>
         </div>
         </>

@@ -4,6 +4,7 @@ import { SocketProvider } from './socket.jsx'
 import { Menu } from './Menu.jsx'
 import { Game } from './Game.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   const router = createBrowserRouter(
@@ -12,7 +13,7 @@ function App() {
       { path: '/game', element: <Game/>, },
     ]
   )
-  const socketProvider = useMemo(() => (<SocketProvider><RouterProvider router={router}/></SocketProvider>), [])
+  const socketProvider = useMemo(() => (<SocketProvider><ToastContainer/><RouterProvider router={router}/></SocketProvider>), [])
   return socketProvider;
 }
 

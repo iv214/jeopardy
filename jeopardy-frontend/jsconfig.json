@@ -6,6 +6,7 @@
     "moduleResolution": "nodenext",
     "checkJs": true,
     "baseUrl": "src",
+    "types": ["vite/client"]
   },
   "exclude": ["node_modules"]
 }
