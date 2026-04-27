@@ -9,16 +9,35 @@ export function Game() {
     const location = useLocation();
     const navigate = useNavigate();
     const [response, setResponse] = useState("")
+    const [stage, setStage] = useState("");
+    
+    let uuid = null;
     let room = null;
-    if (location.state !== null && typeof location.state.room === "string") room = location.state.room;
+    let isOrganizer = false;
+    if (location.state !== null && typeof location.state.uuid === "string") {
+        uuid = location.state.uuid;
+        sessionStorage.setItem("uuid", uuid)
+    }
+    else uuid = sessionStorage.getItem("uuid");
+    if (location.state !== null && typeof location.state.room === "string") {
+        room = location.state.room;
+        sessionStorage.setItem("room", room)
+    }
+    else room = sessionStorage.getItem("room");
+    if (location.state !== null && typeof location.state.isOrganizer === "boolean") isOrganizer = location.state.isOrganizer;
+
     useEffect(() => {
-        if (room == null) {
-            toast.error("Not in a game");
+        const kick_listener = (params) => {
+            if (typeof params.message === "string") {
+                toast.error(params.message, {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
+            }
             navigate("/");
         }
-        else {
-            // todo: implement room rejoin
-        }
+        const success_listener = (params) => {
+            if (typeof params.message === "string") {
+                toast.success(params.message, {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
+            }
+        };
         const error_listener = (params) => {
             if (typeof params.message === "string") {
                 toast.error(params.message, {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
@@ -36,6 +55,19 @@ export function Game() {
         socket.on("press-server", listener)
         socket.on("join-broadcast", join_broadcast_listener)
         socket.on("error", error_listener)
+        socket.on("kick", kick_listener)
+        socket.on("success", success_listener)
+
+        if (room == null) {
+            kick_listener({message: "Lost room id"});
+        }
+        else if (uuid == null) {
+            kick_listener({message: "Lost UUID"});
+        }
+        else {
+            socket.emit("rejoin-room-client", {room: room, uuid: uuid});
+        }
+
         return () => {
             socket.off("press-server", listener)
             socket.off("join_broadcast", join_broadcast_listener)

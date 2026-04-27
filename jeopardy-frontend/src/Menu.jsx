@@ -11,7 +11,7 @@ export function Menu() {
     useEffect(() => {
         const join_success_listener = (params) => {
             toast.success("Joining the lobby", {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
-            navigate("/game", { state: {room: params.room} });
+            navigate("/game", { state: {uuid: params.uuid, room: params.room} });
         };
         const error_listener = (params) => {
             if (typeof params.message === "string") {
@@ -21,7 +21,7 @@ export function Menu() {
         const create_success_listener = (params) => {
             if (typeof params.room === "string") {
                 toast.success(`Created the lobby, room id: ${params.room}`, {autoClose: 5000, hideProgressBar: false, pauseOnHover: true});
-                navigate("/game", { state: {room: params.room} });
+                navigate("/game", { state: {uuid: params.uuid, room: params.room} });
             }
         };
 
@@ -56,7 +56,9 @@ export function Menu() {
                 }
             )}>Start game</button>
             <br/>
-            <button type="button" onClick={() => send("create-room-client")}>Create game</button>
+            <button type="button" onClick={() => send("create-room-client",
+                {name: document.getElementById("username-input")["value"],}
+            )}>Create game</button>
             <p>{response}</p>
         </div>
         </>

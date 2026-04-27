@@ -61,15 +61,29 @@ io.on("connection", (socket) => {
     socket.on("join-room-client", (params, callback) => {
         if (typeof params.room !== 'string' || params.room.length > 20)
         {
-            socket.emit("error", {message: "Invalid lobby name"});
+            socket.emit("error", {message: "Invalid lobby code"});
+            return;
+        }
+        if (typeof params.name !== 'string' || params.name.length < 1)
+        {
+            socket.emit("error", {message: "Invalid player name"});
             return;
         }
         const room = params.room;
         if (io.sockets.adapter.rooms.has(room))
         {
+            const name = params.name;
+            if (gameManager.checkIfNameTaken(room, name)) {
+                socket.emit("error", {message: "Name already taken"});
+                return;
+            }
+            const uuid = crypto.randomUUID();
+            if (!gameManager.addPlayer(room, uuid, name)) {
+                socket.emit("error", {message: "Error while adding a player"});
+                return;
+            }
             socket.join(room);
-            socket.emit("join-success", {room: room});
-            const name = params.name + '';
+            socket.emit("join-success", {uuid: uuid, room: room});
             socket.to(room).emit("join-broadcast", {name: name, id: socket.id})
         }
         else {
@@ -82,18 +96,48 @@ io.on("connection", (socket) => {
         {
             socket.emit("error", {message: "Already in an existing room"});
             // todo: should ask whether the user wants to leave or reconnect the room
+            return
+        }
+        if (typeof params.name !== 'string' || params.name.length < 1)
+        {
+            socket.emit("error", {message: "Invalid player name"});
+            return;
+        }
+        const name = params.name;
+        const room = generateRoomId();
+        if (room) {
+            // todo: configure room settings here from params
+            gameManager.createGame(room, socket.id);
+            const uuid = crypto.randomUUID();
+            if (!gameManager.addPlayer(room, uuid, name)) {
+                socket.emit("error", {message: "Error while adding a player"});
+                return;
+            }
+            socket.join(room);
+            socket.emit("create-success", {uuid: uuid, room: room});
         }
         else {
-            const room = generateRoomId();
-            if (room) {
-                // todo: configure room settings here from params
-                gameManager.createGame(room, socket.id);
+            socket.emit("error", {message: "Exceeded max room id generation attempts"});
+        }
+    })
+    socket.on("rejoin-room-client", (params, callback) => {
+        if (typeof params.room !== "string") return;
+        if (typeof params.uuid !== "string") return;
+        const room = params.room;
+        const uuid = params.uuid;
+        if (socket.rooms.has(room)) return; // No need to rejoin
+        if (io.sockets.adapter.rooms.has(room)) {
+            if (gameManager.checkPlayer(room, uuid)) {
                 socket.join(room);
-                socket.emit("create-success", {room: room});
+                socket.emit("success", {message: "Reconnected to the room"})
             }
             else {
-                socket.emit("error", {message: "Exceeded max room id generation attempts"});
+                socket.emit("kick", {message: "Player is not in the room"});
             }
+        }
+        else
+        {
+            socket.emit("kick", {message: "Room doesn't exist"});
         }
     })
     // Game commands
