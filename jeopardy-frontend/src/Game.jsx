@@ -88,8 +88,8 @@ export function Game() {
             }
         };
         const room_action_broadcast_listener = (params) => {
-            if (typeof params.name === "string" && typeof params.id === "string" && typeof params.action === "string") {
-                toast.info(`${params.name} [${params.id}] ${params.action} the room`)
+            if (typeof params.name === "string" && typeof params.action === "string") {
+                toast.info(`${params.name} ${params.action} the room`)
             }
         }
 

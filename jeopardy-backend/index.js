@@ -1,10 +1,39 @@
 const { Server } = require("socket.io");
 const { createServer } = require('node:http')
 const express = require("express")
+const dotenv = require("dotenv").config()
+const cors = require("cors");
+
+
+var environment = process.env.NODE_ENV || "development";
+console.log(`Running as ${environment}`);
+
+
 
 const app = express()
+
+if (environment === "production") {
+    const corsOptions = {
+        origin: (origin, callback) => {
+            if (!origin || origin !== process.env.PROD_FRONTEND_URL) {
+                callback(null, true);
+            }
+            else {
+                callback(new Error("Not allowed by CORS settings"))
+            }
+        }, credentials: true,
+    };
+    app.use(cors(corsOptions));    
+}
+
 const server = createServer(app)
-const io = new Server(server, {cors: { origin: "http://localhost:5173" }});
+const io = new Server(server, {cors: {
+    origin: environment === "production"
+        ? process.env.PROD_FRONTEND_URL
+        : process.env.DEV_FRONTEND_URL,
+    methods: ["GET", "POST"],
+    credentials: true,
+}});
 
 const GameManager = require('./GameManager')
 const gameManager = new GameManager(io);
