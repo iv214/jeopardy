@@ -239,6 +239,7 @@ export function Game() {
         }
         return (
             <div className="chat-view">
+                <div className="chat-title"><h3 id="chat-title">Chat</h3></div>
                 <div className="message-log">
                     {messageLog.map(message => (
                         <div key={message.id} className="message">
@@ -325,18 +326,22 @@ export function Game() {
             <div className="secondary-panel">
                 <div className="room-panel">
                     <div className="room-code">
-                        <p>Room code:<br/>{room}</p>
+                        <p>Room code: <strong>{room}</strong></p>
                     </div>
                     <button className="room-leave" onClick={() => send("leave-room-client", {uuid: uuid, room: room})}>
                         Leave game
                     </button>
                 </div>
+
+                <div className="player-list"></div>
                   
                 <Chat/>
 
-                <div>
+                {/*
+                <div className="game-info">
+                    {stage==="choice" && <p></p>}
                     <p>{info}</p>
-                </div>
+                </div> */}
             </div>
             
             

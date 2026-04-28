@@ -21,26 +21,42 @@
     flex-direction: column;
 }
 .room-panel {
-    flex: 1;
-
+    align-items: flex-start;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: center;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #fff;
 }
 .chat-view {
-    flex: 2;
+    flex: 4;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
-
+.chat-title {
+    text-align: left;
+    padding-left: 1rem;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+#chat-title {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
 .message-log {
-    flex: 4;
+    flex: 8;
     overflow: scroll;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #fff;
 }
 .new-message-form {
-    flex: 1;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #fff;
 }
 .answer-form {
     flex: 1;
