@@ -11,7 +11,7 @@ export function Menu() {
     useEffect(() => {
         const join_success_listener = (params) => {
             toast.success("Joining the lobby", {autoClose: 1500, hideProgressBar: true, pauseOnHover: false});
-            navigate("/game", { state: {uuid: params.uuid, room: params.room} });
+            navigate("/game", { state: {uuid: params.uuid, room: params.room, name: params.name} });
         };
         const error_listener = (params) => {
             if (typeof params.message === "string") {
@@ -20,8 +20,8 @@ export function Menu() {
         };
         const create_success_listener = (params) => {
             if (typeof params.room === "string") {
-                toast.success(`Created the lobby, room id: ${params.room}`, {autoClose: 5000, hideProgressBar: false, pauseOnHover: true});
-                navigate("/game", { state: {uuid: params.uuid, room: params.room} });
+                //toast.success(`Created the lobby, room id: ${params.room}`, {autoClose: 5000, hideProgressBar: false, pauseOnHover: true});
+                navigate("/game", { state: {uuid: params.uuid, room: params.room, isOrganizer: "true"} });
             }
         };
         socket.off()
@@ -55,7 +55,10 @@ export function Menu() {
             )}>Join game</button>
             <br/>
             <button type="button" onClick={() => send("create-room-client",
-                {name: document.getElementById("username-input")["value"],}
+                {
+                    name: document.getElementById("username-input")["value"],
+                    questionList: [{category: "Пример категории", question: "Вопрос", points: 100, answer: "ответ"}]
+                }
             )}>Create game</button>
             <p>{response}</p>
         </div>

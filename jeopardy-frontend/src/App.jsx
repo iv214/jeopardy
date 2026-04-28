@@ -13,7 +13,7 @@ function App() {
       { path: '/game', element: <Game/>, },
     ]
   )
-  const socketProvider = useMemo(() => (<SocketProvider><ToastContainer/><RouterProvider router={router}/></SocketProvider>), [])
+  const socketProvider = useMemo(() => (<SocketProvider><ToastContainer position="bottom-left"/><RouterProvider router={router}/></SocketProvider>), [])
   return socketProvider;
 }
 
