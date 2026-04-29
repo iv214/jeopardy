@@ -6,8 +6,8 @@ on:
     branches: [main]
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE: ${{github.repository}}-backend
-  FRONTEND_IMAGE: ${{github.repository}}-frontend
+  BACKEND_IMAGE: ${{ github.repository }}-backend
+  FRONTEND_IMAGE: ${{ github.repository }}-frontend
 jobs:
   lint:
     name: Lint
@@ -56,9 +56,9 @@ backend:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v4.1.0
         with:
-          registry: ${{env.REGISTRY}}
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker images
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v7.1.0
@@ -66,8 +66,8 @@ backend:
           context: ./jeopardy-backend
           push: true
           tags: |
-            ${{env.REGISTRY}}/${{env.BACKEND_IMAGE}}:latest
-            ${{env.REGISTRY}}/${{env.BACKEND_IMAGE}}:${{github.sha}}
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}
   frontend:
     name: Frontend CI
     runs-on: ubuntu-latest
@@ -103,8 +103,8 @@ backend:
           context: ./jeopardy-frontend
           push: true
           tags: |
-            ${{env.REGISTRY}}/${{env.FRONTEND_IMAGE}}:latest
-            ${{env.REGISTRY}}/${{env.FRONTEND_IMAGE}}:${{github.sha}}
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -114,13 +114,13 @@ backend:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.5
         with:
-          host: ${{secrets.PROD_HOST}}
-          username: ${{secrets.PROD_USERNAME}}
-          key: ${{secrets.PROD_SSH_PRIVATE_KEY}}
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             cd /opt/application
-            docker pull ${{env.REGISTRY}}/${{env.BACKEND_IMAGE}}:latest
-            docker pull ${{env.REGISTRY}}/${{env.FRONTEND_IMAGE}}:latest
+            docker pull ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
+            docker pull ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
             docker-compose down
             docker-compose up -d
             docker image prune -f
