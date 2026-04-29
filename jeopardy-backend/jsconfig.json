@@ -4,7 +4,7 @@
     "target": "es6",
     "moduleResolution": "node",
     "checkJs": true,
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "exclude": ["node_modules"]
 }
