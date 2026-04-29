@@ -1,0 +1,8 @@
+.question-table {
+    width: 100%
+}
+td {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #fff;
+}

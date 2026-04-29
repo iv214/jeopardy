@@ -7,9 +7,13 @@ class GameManager {
     // Game management
 
     createGame(room, creator, questionList, options={}) {
-        
+        if (this.games.get(room)) return this.games.get(room);
         const cb = this.createBoard(questionList);
         if (cb === null) return false;
+        if (cb.error) {
+            this.io.sockets.sockets.get(creator).emit("error", {message: cb.message})
+            return false
+        }
         //console.log("Checked board,", (cb !== null))
         const verifiedOptions = this.verifyOptions(options)
         const game = {
@@ -30,7 +34,7 @@ class GameManager {
                 questionsRemaining: cb.questionCounter,
             },
             board: cb.board,
-            currentAnswer: null,
+            currentAnswer: "",
         }
         
         
@@ -50,7 +54,9 @@ class GameManager {
         const categories = [...new Set(filteredQList.map(element => element.category))]
         const points = [...new Set(filteredQList.map(element => element.points))].sort()
 
-        if ((categories.length > categoryLimit) || (points.length > pointvalsLimit)) return null;
+        if (categories.length > categoryLimit) return {"error": true, "message": "Too many categories for a table"};
+        if (points.length > pointvalsLimit) return {"error": true, "message": "Too many point value categories for a table"};
+        if ((categories.length < 1) || (points.length < 1)) return {"error": true, "message": "The given table is empty"};
         
         const keytable = new Map();
         for (const element of filteredQList) {
@@ -118,7 +124,7 @@ class GameManager {
         if (!game) return false;
         if (game.players.has(uuid)) return false;
         if (this.checkIfNameTaken(room, name)) return false;
-        game.players.set(uuid, {name: name, score: 0, socket_id: socket_id, organizer: organizer, dq: organizer})
+        game.players.set(uuid, {name: name, score: 0, socket_id: socket_id, organizer: organizer, dq: (organizer && !game.options.selfpart)})
         return true;
     }
 
@@ -178,7 +184,7 @@ class GameManager {
         if (typeof room !== "string") return null;
         const game = this.games.get(room)
         if (!game) return null;
-        return game.players.values;
+        return Array.from(game.players.values);
     }
 
     checkIfNameTaken(room, name) {
@@ -190,7 +196,7 @@ class GameManager {
 
     verifyOptions(options) {
         return {
-            
+            selfpart: (options.selfpart === true)
         }
     }
 
@@ -340,6 +346,7 @@ class GameManager {
                 break;
                 
             case "q-reveal":
+                game.currentAnswer = "";
                 gamestate.questionsRemaining--;
                 if (gamestate.questionsRemaining > 0) {
                     next_stage = "choice";
@@ -347,6 +354,7 @@ class GameManager {
                 else {
                     next_stage = "r-end";
                 }
+                
                 break;
             case "r-end":
                 this.closeGame(room);

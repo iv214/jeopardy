@@ -44,7 +44,7 @@ function generateRoomId(length=8, attempts=3) {
     const MAX_LENGTH = 16;
     for (let counter = 0; counter < attempts; counter++) {
         const room = Math.random().toString(36).substring(2, 2+Math.min(Math.max(length, 0), MAX_LENGTH));
-        console.log(room)
+        //console.log(room)
         if (!io.sockets.adapter.rooms.has(room)) {
             return room;
         }
@@ -151,8 +151,9 @@ io.on("connection", (socket) => {
         const questionList = params.questionList;
         const room = generateRoomId();
         if (room) {
-            // todo: configure room settings here from params
-            if (gameManager.createGame(room, socket.id, questionList) === false) {
+            const options = {selfpart: false}
+            if (params.selfpart === true) options.selfpart = true;
+            if (gameManager.createGame(room, socket.id, questionList, options) === false) {
                 socket.emit("error", {message: "Failed to create a game"});
                 return;
             }
@@ -323,7 +324,7 @@ io.on("connection", (socket) => {
     })
     // Chat
     socket.on("chat-message-client", (params, callback) => {
-        console.log("received a chat message")
+        //console.log("received a chat message")
         const date = new Date(Date.now())
         if (typeof params.uuid !== "string") return;
         if (typeof params.room !== "string") return;
@@ -338,7 +339,7 @@ io.on("connection", (socket) => {
                 io.to(params.room).emit("chat-message-server", {name: playerData.name, date: date.toString(), message: message});
             }
             else {
-                socket.emit("error", {message: ""})
+                socket.emit("error", {message: "Player data not found"})
             }
         }
         else {

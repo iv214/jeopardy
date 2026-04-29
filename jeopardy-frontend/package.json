@@ -9,9 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"
-
   },
   "dependencies": {
+    "dompurify": "^3.4.1",
     "dotenv": "^17.3.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
