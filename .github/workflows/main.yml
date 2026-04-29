@@ -38,6 +38,10 @@ jobs:
   backend:
     name: Backend CI
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
     defaults:
       run:
         working-directory: ./jeopardy-backend
@@ -63,7 +67,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v7.1.0
         with:
-          context: ./backend
+          context: ./jeopardy-backend
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
@@ -71,6 +75,10 @@ jobs:
   frontend:
     name: Frontend CI
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
     defaults:
       run:
         working-directory: ./jeopardy-frontend
@@ -100,7 +108,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v7.1.0
         with:
-          context: ./frontend
+          context: ./jeopardy-frontend
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
@@ -109,6 +117,9 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
     needs: [backend, frontend]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
