@@ -308,6 +308,10 @@ export function Game() {
             </div>
             <div className="secondary-panel">
                 <div className="room-panel">
+                    <div className="game-info">
+                        {stage==="choice" && <><>{name === choosingPlayer && <p><b>Your choice!</b></p>}</>
+                        <>{name !== choosingPlayer && <p><b>{name}'s choice</b></p>}</></>}
+                    </div>
                     <div className="room-code">
                         <p>Room code: <strong>{room}</strong></p>
                     </div>
@@ -338,12 +342,6 @@ export function Game() {
                         <p>{info}</p>
                     </div>
                 </div>
-
-                {/*
-                <div className="game-info">
-                    {stage==="choice" && <p></p>}
-                    <p>{info}</p>
-                </div> */}
             </div>
             
             
