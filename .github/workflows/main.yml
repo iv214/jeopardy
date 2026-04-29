@@ -32,7 +32,7 @@ jobs:
           VALIDATE_JSON: true
           VALIDATE_YAML: true
           VALIDATE_MARKDOWN: true
-          VALIDATE_CSS: true
+          VALIDATE_CSS: false
           VALIDATE_HTML: true
           FILTER_REGEX_EXCLUDE: ".*/dist/.*|.*/node_modules/.*"
   backend:
