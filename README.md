@@ -10,7 +10,7 @@
 ### Инструкция по развертыванию
 
 В терминале из целевой директории выполнить:
-```
+```bash
 docker pull ghcr.io/iv214/jeopardy-backend:latest
 docker pull ghcr.io/iv214/jeopardy-frontend:latest
 docker compose down
